@@ -27,7 +27,7 @@ const StudentController = {
   },
   getById: async (req, res) => {
     try {
-      const student = await Student.findByPk(req.params.id, {
+      const student = await Student.findByPk(req.params.studentId, {
         include: [
           {
             model: Classroom,
@@ -45,7 +45,6 @@ const StudentController = {
       }
 
       return res.status(200).send(student);
-
     } catch (error) {
       return res.status(400).send(error);
     }
@@ -64,7 +63,7 @@ const StudentController = {
   },
   update: async (req, res) => {
     try {
-      const student = await Student.findByPk(req.params.id);
+      const student = await Student.findByPk(req.params.studentId);
 
       if (!student) {
         return res.status(404).send({ message: 'Student Not Found' });
@@ -76,7 +75,7 @@ const StudentController = {
         },
         {
           where: {
-            id: req.params.id
+            id: req.params.studentId
           },
           returning: true
         }
@@ -89,22 +88,24 @@ const StudentController = {
     }
   },
   delete: async (req, res) => {
-    return Student
-      .findByPk(req.params.id)
-      .then(student => {
-        if (!student) {
-          return res.status(400).send({
-            message: 'Student Not Found',
-          });
-        }
-        return student
-          .destroy()
-          .then(() => res.status(204).send())
-          .catch((error) => res.status(400).send(error));
-      })
-      .catch((error) => res.status(400).send(error));
-  },
+    try {
+      const student = await Student.findByPk(req.params.studentId);
 
+      if (!student) {
+        return res.status(400).send({ message: 'Student Not Found' });
+      }
+
+      const numDestroyedRows = await Student.destroy({
+        where: {
+          id: req.params.studentId
+        }
+      });
+
+      return res.status(204).send({ count: numDestroyedRows });
+    } catch (error) {
+      return res.status(400).send(error);
+    }
+  }
 };
 
 module.exports = StudentController;
