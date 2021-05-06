@@ -1,4 +1,4 @@
-const { CourseController } = require("../controllers");
+const { CourseController } = require("../../controllers");
 
 const CourseRoutes = [
   {
